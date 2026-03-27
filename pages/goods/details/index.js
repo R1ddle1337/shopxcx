@@ -7,6 +7,7 @@ import {
 } from '../../../services/good/fetchGoodsDetailsComments';
 
 import { cdnBase } from '../../../config/index';
+import { STORE_NAME } from '../../../model/store';
 
 const imgPrefix = `${cdnBase}/`;
 
@@ -46,7 +47,7 @@ Page({
       },
     ],
     storeLogo: `${imgPrefix}common/store-logo.png`,
-    storeName: '云mall标准版旗舰店',
+    storeName: STORE_NAME,
     jumpArray: [
       {
         title: '首页',
@@ -54,7 +55,7 @@ Page({
         iconName: 'home',
       },
       {
-        title: '购物车',
+        title: '菜篮',
         url: '/pages/cart/index',
         iconName: 'cart',
         showCartNum: true,
@@ -153,14 +154,10 @@ Page({
       selectedAttrStr += `，${item.specValue}  `;
     });
     // eslint-disable-next-line array-callback-return
-    const skuItem = skuArray.filter((item) => {
-      let status = true;
-      (item.specInfo || []).forEach((subItem) => {
-        if (!selectedSku[subItem.specId] || selectedSku[subItem.specId] !== subItem.specValueId) {
-          status = false;
-        }
+    const skuItem = skuArray.find((item) => {
+      return (item.specInfo || []).every((subItem) => {
+        return selectedSku[subItem.specId] && selectedSku[subItem.specId] === subItem.specValueId;
       });
-      if (status) return item;
     });
     this.selectSpecsName(selectedSkuValues.length > 0 ? selectedAttrStr : '');
     if (skuItem) {
@@ -220,7 +217,7 @@ Page({
     Toast({
       context: this,
       selector: '#t-toast',
-      message: isAllSelectedSku ? '点击加入购物车' : '请选择规格',
+      message: isAllSelectedSku ? '已加入菜篮' : '请选择规格',
       icon: '',
       duration: 1000,
     });
@@ -239,21 +236,22 @@ Page({
       return;
     }
     this.handlePopupHide();
+    const selectedSku = this.data.selectItem || this.data.skuArray[0] || {};
     const query = {
       quantity: buyNum,
       storeId: '1',
       spuId: this.data.spuId,
       goodsName: this.data.details.title,
-      skuId: type === 1 ? this.data.skuList[0].skuId : this.data.selectItem.skuId,
+      skuId: selectedSku.skuId || this.data.details.skuList?.[0]?.skuId,
       available: this.data.details.available,
-      price: this.data.details.minSalePrice,
-      specInfo: this.data.details.specList?.map((item) => ({
-        specTitle: item.title,
-        specValue: item.specValueList[0].specValue,
+      price: selectedSku.price || this.data.details.minSalePrice,
+      specInfo: (selectedSku.specInfo || []).map((item) => ({
+        specTitle: item.specTitle,
+        specValue: item.specValue,
       })),
-      primaryImage: this.data.details.primaryImage,
+      primaryImage: selectedSku.skuImage || this.data.details.primaryImage,
       spuId: this.data.details.spuId,
-      thumb: this.data.details.primaryImage,
+      thumb: selectedSku.skuImage || this.data.details.primaryImage,
       title: this.data.details.title,
     };
     let urlQueryStr = obj2Params({
@@ -307,17 +305,20 @@ Page({
       const skuArray = [];
       const { skuList, primaryImage, isPutOnSale, minSalePrice, maxSalePrice, maxLinePrice, soldNum } = details;
       skuList.forEach((item) => {
+        const salePrice = Number(item.priceInfo.find((price) => price.priceType === 1)?.price || 0);
         skuArray.push({
           skuId: item.skuId,
           quantity: item.stockInfo ? item.stockInfo.stockQuantity : 0,
           specInfo: item.specInfo,
+          skuImage: item.skuImage,
+          price: salePrice,
         });
       });
       const promotionArray = [];
       activityList.forEach((item) => {
         promotionArray.push({
           tag: item.promotionSubCode === 'MYJ' ? '满减' : '满折',
-          label: '满100元减99.9元',
+          label: item.promotionSubCode === 'MYJ' ? '满 59 元减 10 元' : '第二件 9 折',
         });
       });
       this.setData({

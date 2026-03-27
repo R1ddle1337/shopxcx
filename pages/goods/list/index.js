@@ -144,7 +144,7 @@ Page({
     Toast({
       context: this,
       selector: '#t-toast',
-      message: '点击加购',
+      message: '已加入菜篮',
     });
   },
 
@@ -196,7 +196,7 @@ Page({
     if (minVal && !maxVal) {
       message = `价格最小是${minVal}`;
     } else if (!minVal && maxVal) {
-      message = `价格范围是0-${minVal}`;
+      message = `价格范围0-${maxVal}`;
     } else if (minVal && maxVal && minVal <= maxVal) {
       message = `价格范围${minVal}-${this.data.maxVal}`;
     } else {

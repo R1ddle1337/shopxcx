@@ -24,7 +24,7 @@
 	<block wx:if="{{buttonType === 1}}">
 		<view class="flex buy-buttons">
 			<view class="bar-separately {{soldout || !isStock ? 'bar-addCart-disabled' : ''}}" bindtap="toAddCart">
-				加入购物车
+				加入菜篮
 			</view>
 			<view class="bar-buy {{soldout || !isStock ? 'bar-buyNow-disabled' : ''}}" bindtap="toBuyNow">
 				立即购买
@@ -35,4 +35,3 @@
 		<slot name="buyButton" />
 	</block>
 </view>
-

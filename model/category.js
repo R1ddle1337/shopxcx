@@ -1,48 +1,48 @@
 export function getCategoryList() {
   return [
     {
-      groupId: '24948',
-      name: '女装',
-      thumbnail: 'https://tdesign.gtimg.com/miniprogram/template/retail/category/category-default.png',
+      groupId: 'fruit',
+      name: '鲜果',
+      thumbnail: '/assets/produce/apple.svg',
       children: [
         {
-          groupId: '249481',
-          name: '女装',
-          thumbnail: 'https://tdesign.gtimg.com/miniprogram/template/retail/category/category-default.png',
+          groupId: 'fruit-hot',
+          name: '热卖鲜果',
+          thumbnail: '/assets/produce/citrus.svg',
           children: [
             {
-              groupId: '249480',
-              name: '卫衣',
-              thumbnail: 'https://tdesign.gtimg.com/miniprogram/template/retail/classify/img-1.png',
+              groupId: 'fruit-hot-1',
+              name: '苹果礼盒',
+              thumbnail: '/assets/produce/apple.svg',
             },
             {
-              groupId: '249482',
-              name: '连衣裙',
-              thumbnail: 'https://tdesign.gtimg.com/miniprogram/template/retail/classify/img-9.png',
+              groupId: 'fruit-hot-2',
+              name: '沃柑鲜果箱',
+              thumbnail: '/assets/produce/citrus.svg',
             },
           ],
         },
       ],
     },
     {
-      groupId: '24949',
-      name: '男装',
-      thumbnail: 'https://tdesign.gtimg.com/miniprogram/template/retail/category/category-default.png',
+      groupId: 'vegetable',
+      name: '时蔬',
+      thumbnail: '/assets/produce/broccoli.svg',
       children: [
         {
-          groupId: '249491',
-          name: '男装',
-          thumbnail: 'https://tdesign.gtimg.com/miniprogram/template/retail/category/category-default.png',
+          groupId: 'vegetable-fresh',
+          name: '今日鲜蔬',
+          thumbnail: '/assets/produce/tomato.svg',
           children: [
             {
-              groupId: '249490',
-              name: '长裤',
-              thumbnail: 'https://tdesign.gtimg.com/miniprogram/template/retail/classify/img-11.png',
+              groupId: 'vegetable-fresh-1',
+              name: '有机西兰花',
+              thumbnail: '/assets/produce/broccoli.svg',
             },
             {
-              groupId: '249492',
-              name: '西装',
-              thumbnail: 'https://tdesign.gtimg.com/miniprogram/template/retail/classify/img-7.png',
+              groupId: 'vegetable-fresh-2',
+              name: '沙瓤番茄',
+              thumbnail: '/assets/produce/tomato.svg',
             },
           ],
         },

@@ -19,7 +19,7 @@
 			/>
 		</view>
 		<view wx:if="{{totalDiscountAmount}}">
-			<text class="cart-bar__total--normal text-padding-right">优惠</text>
+			<text class="cart-bar__total--normal text-padding-right">已省</text>
 			<price class="cart-bar__total--normal" price="{{totalDiscountAmount || '0'}}" fill="{{false}}" />
 		</view>
 	</view>

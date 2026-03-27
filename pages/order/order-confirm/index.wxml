@@ -57,7 +57,7 @@
         <text wx:else>免运费</text>
       </view>
     </view>
-    <view class="pay-item">
+    <view class="pay-item" wx:if="{{settleDetailData.totalPromotionAmount && settleDetailData.totalPromotionAmount != 0}}">
       <text>活动优惠</text>
       <view class="pay-item__right primary font-bold">
         -

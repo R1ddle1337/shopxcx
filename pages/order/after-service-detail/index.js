@@ -79,6 +79,7 @@ Page({
         amount: serviceRaw.rights.refundRequestAmount,
         goodsList: (serviceRaw.rightsItem || []).map((item, i) => ({
           id: i,
+          spuId: item.spuId,
           thumb: item.goodsPictureUrl,
           title: item.goodsName,
           specs: (item.specInfo || []).map((s) => s.specValues || ''),
@@ -171,7 +172,7 @@ Page({
   onGoodsCardTap(e) {
     const { index } = e.currentTarget.dataset;
     const goods = this.data.serviceRaw.rightsItem[index];
-    wx.navigateTo({ url: `/pages/goods/details/index?skuId=${goods.skuId}` });
+    wx.navigateTo({ url: `/pages/goods/details/index?spuId=${goods.spuId}` });
   },
 
   onServiceNoCopy() {

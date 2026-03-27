@@ -12,7 +12,7 @@
         </view>
         <!-- 已选规格 -->
         <view class="popup-sku__selected-spec">
-          <view>选择：</view>
+        <view>已选：</view>
           <view wx:for="{{specList}}" wx:key="specId">
             <view
               class="popup-sku__selected-item"
@@ -69,7 +69,7 @@
     >
       <view class="sku-operate">
         <view class="selected-sku-btn sku-operate-addCart {{!isStock ? 'disabled' : ''}}" bindtap="addCart">
-          加入购物车
+          加入菜篮
         </view>
       </view>
       <view class="sku-operate">

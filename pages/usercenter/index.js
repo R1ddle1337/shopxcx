@@ -4,7 +4,7 @@ import Toast from 'tdesign-miniprogram/toast/index';
 const menuData = [
   [
     {
-      title: '收货地址',
+      title: '配送地址',
       tit: '',
       url: '',
       type: 'address',
@@ -12,7 +12,7 @@ const menuData = [
   ],
   [
     {
-      title: '帮助中心',
+      title: '售后帮助',
       tit: '',
       url: '',
       type: 'help-center',
@@ -142,7 +142,7 @@ Page({
         Toast({
           context: this,
           selector: '#t-toast',
-          message: '你点击了帮助中心',
+          message: '售后帮助整理中',
           icon: '',
           duration: 1000,
         });
@@ -152,7 +152,7 @@ Page({
         Toast({
           context: this,
           selector: '#t-toast',
-          message: '未知跳转',
+          message: '功能开发中',
           icon: '',
           duration: 1000,
         });

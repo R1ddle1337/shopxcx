@@ -245,12 +245,12 @@ Page({
       goods: { spuId, skuId },
     } = e.detail;
     Dialog.confirm({
-      content: '删除该商品？',
+      content: '移出菜篮？',
       confirmBtn: '删除',
       cancelBtn: '取消',
     }).then(() => {
       this.deleteGoodsService({ spuId, skuId }).then(() => {
-        Toast({ context: this, selector: '#t-toast', message: '已删除' });
+        Toast({ context: this, selector: '#t-toast', message: '已移出' });
         this.refreshData();
       });
     });

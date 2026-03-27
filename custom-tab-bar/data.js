@@ -11,7 +11,7 @@ export default [
   },
   {
     icon: 'cart',
-    text: '购物车',
+    text: '菜篮',
     url: 'pages/cart/index',
   },
   {

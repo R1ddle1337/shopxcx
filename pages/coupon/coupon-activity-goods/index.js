@@ -72,7 +72,7 @@ Page({
     Toast({
       context: this,
       selector: '#t-toast',
-      message: '点击加入购物车',
+      message: '已加入菜篮',
     });
   },
 });

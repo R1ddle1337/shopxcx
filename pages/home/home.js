@@ -92,7 +92,7 @@ Page({
     Toast({
       context: this,
       selector: '#t-toast',
-      message: '加入成功',
+      message: '已加入菜篮',
     });
   },
 

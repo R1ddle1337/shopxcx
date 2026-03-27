@@ -1,4 +1,5 @@
 import { mockIp, mockReqId } from '../../utils/mock';
+import { STORE_NAME } from '../store';
 
 export const transformGoodsDataToConfirmData = (goodsDataList) => {
   const list = [];
@@ -42,15 +43,15 @@ export function genSettleDetail(params) {
     data: {
       settleType: 0,
       userAddress: null,
-      totalGoodsCount: 3,
+      totalGoodsCount: 0,
       packageCount: 1,
-      totalAmount: '289997',
-      totalPayAmount: '',
-      totalDiscountAmount: '110000',
-      totalPromotionAmount: '1100',
+      totalAmount: '0',
+      totalPayAmount: '0',
+      totalDiscountAmount: '0',
+      totalPromotionAmount: '0',
       totalCouponAmount: '0',
-      totalSalePrice: '289997',
-      totalGoodsAmount: '289997',
+      totalSalePrice: '0',
+      totalGoodsAmount: '0',
       totalDeliveryFee: '0',
       invoiceRequest: null,
       skuImages: null,
@@ -58,14 +59,14 @@ export function genSettleDetail(params) {
       storeGoodsList: [
         {
           storeId: '1000',
-          storeName: '深圳 Mall 旗舰店',
+          storeName: STORE_NAME,
           remark: null,
           goodsCount: 1,
           deliveryFee: '0',
           deliveryWords: null,
           storeTotalAmount: '0',
-          storeTotalPayAmount: '179997',
-          storeTotalDiscountAmount: '110000',
+          storeTotalPayAmount: '0',
+          storeTotalDiscountAmount: '0',
           storeTotalCouponAmount: '0',
           skuDetailVos: [],
           couponList: [],
@@ -90,9 +91,13 @@ export function genSettleDetail(params) {
 
   resp.data.storeGoodsList[0].skuDetailVos = list;
   resp.data.totalGoodsCount = list.reduce((pre, cur) => pre + cur.quantity, 0);
-  resp.data.totalSalePrice = totalPrice;
+  resp.data.totalSalePrice = `${totalPrice}`;
+  resp.data.totalAmount = `${totalPrice}`;
+  resp.data.totalGoodsAmount = `${totalPrice}`;
   resp.data.totalCouponAmount = '0';
-  resp.data.totalPayAmount = totalPrice - Number(resp.data.totalPromotionAmount);
+  resp.data.totalPromotionAmount = '0';
+  resp.data.totalDiscountAmount = '0';
+  resp.data.totalPayAmount = `${totalPrice}`;
   resp.data.storeGoodsList[0].storeTotalPayAmount = `${resp.data.totalPayAmount}`;
 
   if (userAddressReq) {
