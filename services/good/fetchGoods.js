@@ -1,5 +1,6 @@
 import { shouldUseMock } from '../../config/index';
 import request from '../../utils/request';
+import { withMockFallback } from '../_utils/withMockFallback';
 
 /** 获取商品列表 */
 function mockFetchGoodsList(pageIndex = 1, pageSize = 20) {
@@ -24,11 +25,16 @@ export function fetchGoodsList(pageIndex = 1, pageSize = 20) {
   if (shouldUseMock('goods')) {
     return mockFetchGoodsList(pageIndex, pageSize);
   }
-  return request({
-    url: '/goods/home',
-    data: {
-      pageIndex,
-      pageSize,
-    },
-  });
+  return withMockFallback(
+    () =>
+      request({
+        url: '/goods/home',
+        data: {
+          pageIndex,
+          pageSize,
+        },
+      }),
+    () => mockFetchGoodsList(pageIndex, pageSize),
+    'goods/home',
+  );
 }

@@ -1,5 +1,6 @@
 import { shouldUseMock } from '../../config/index';
 import request from '../../utils/request';
+import { withMockFallback } from '../_utils/withMockFallback';
 
 /** 获取商品列表 */
 function mockFetchGood(ID = 0) {
@@ -13,7 +14,12 @@ export function fetchGood(ID = 0) {
   if (shouldUseMock('goods')) {
     return mockFetchGood(ID);
   }
-  return request({
-    url: `/goods/${ID}`,
-  });
+  return withMockFallback(
+    () =>
+      request({
+        url: `/goods/${ID}`,
+      }),
+    () => mockFetchGood(ID),
+    `goods/${ID}`,
+  );
 }

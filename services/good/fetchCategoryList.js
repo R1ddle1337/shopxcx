@@ -1,5 +1,6 @@
 import { shouldUseMock } from '../../config/index';
 import request from '../../utils/request';
+import { withMockFallback } from '../_utils/withMockFallback';
 
 /** 获取商品列表 */
 function mockFetchGoodCategory() {
@@ -13,7 +14,12 @@ export function getCategoryList() {
   if (shouldUseMock('goods')) {
     return mockFetchGoodCategory();
   }
-  return request({
-    url: '/categories',
-  });
+  return withMockFallback(
+    () =>
+      request({
+        url: '/categories',
+      }),
+    () => mockFetchGoodCategory(),
+    'categories',
+  );
 }

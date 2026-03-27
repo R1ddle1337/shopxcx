@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { shouldUseMock } from '../../config/index';
 import request from '../../utils/request';
+import { withMockFallback } from '../_utils/withMockFallback';
 
 /** 获取商品列表 */
 function mockFetchGoodsList(params) {
@@ -34,8 +35,13 @@ export function fetchGoodsList(params) {
   if (shouldUseMock('goods')) {
     return mockFetchGoodsList(params);
   }
-  return request({
-    url: '/goods/list',
-    data: params,
-  });
+  return withMockFallback(
+    () =>
+      request({
+        url: '/goods/list',
+        data: params,
+      }),
+    () => mockFetchGoodsList(params),
+    'goods/list',
+  );
 }

@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { shouldUseMock } from '../../config/index';
 import request from '../../utils/request';
+import { withMockFallback } from '../_utils/withMockFallback';
 
 /** 获取搜索历史 */
 function mockSearchResult(params) {
@@ -33,8 +34,13 @@ export function getSearchResult(params) {
   if (shouldUseMock('goods')) {
     return mockSearchResult(params);
   }
-  return request({
-    url: '/goods/search',
-    data: params,
-  });
+  return withMockFallback(
+    () =>
+      request({
+        url: '/goods/search',
+        data: params,
+      }),
+    () => mockSearchResult(params),
+    'goods/search',
+  );
 }
