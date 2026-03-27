@@ -1,119 +1,99 @@
 <p align="center">
-  <a href="https://tdesign.tencent.com/" target="_blank">
-    <img alt="TDesign Logo" width="200" src="https://tdesign.gtimg.com/site/TDesign.png">
+  <a href="https://tdesign.tencent.com/miniprogram/overview" target="_blank">
+    <img alt="TDesign Logo" width="180" src="https://tdesign.gtimg.com/site/TDesign.png">
   </a>
 </p>
 
-<p align="center">
-  <a href="https://img.shields.io/github/stars/Tencent/tdesign-miniprogram-starter-retail">
-    <img src="https://img.shields.io/github/stars/Tencent/tdesign-miniprogram-starter-retail" alt="License">
-  </a>
-  <a href="https://github.com/Tencent/tdesign-miniprogram-starter-retail/issues">
-    <img src="https://img.shields.io/github/issues/Tencent/tdesign-miniprogram-starter-retail" alt="License">
-  </a>
-  <a href="https://github.com/Tencent/tdesign-miniprogram-starter-retail/LICENSE">
-    <img src="https://img.shields.io/github/license/Tencent/tdesign-miniprogram-starter-retail" alt="License">
-  </a>
-  <a href="https://www.npmjs.com/package/tdesign-miniprogram">
-    <img src="https://img.shields.io/npm/v/tdesign-miniprogram.svg?sanitize=true" alt="Version">
-  </a>
-  <a href="https://www.npmjs.com/package/tdesign-miniprogram">
-    <img src="https://img.shields.io/npm/dw/tdesign-miniprogram" alt="Downloads">
-  </a>
-</p>
+# 鲜蔬果园小程序
 
-# TDesign 零售行业模版示例小程序
+基于 `Tencent/tdesign-miniprogram-starter-retail` 改造成的果蔬店铺小程序示例，当前仓库用于前端页面演示、交互联调和本地 mock 数据验证。
 
-TDesign 零售模版示例小程序采用 [TDesign 企业级设计体系小程序解决方案](https://tdesign.tencent.com/miniprogram/overview) 进行搭建，依赖 [TDesign 微信小程序组件库](https://github.com/Tencent/tdesign-miniprogram)，涵盖完整的基本零售场景需求。
+## 技术栈
 
-## :pushpin: 项目介绍
+- 微信原生小程序：`JavaScript` + `WXML` + `WXSS`
+- UI 组件库：`tdesign-miniprogram@1.9.5`
+- 包管理：`npm`
+- 代码规范：`ESLint` + `Prettier` + `Husky` + `lint-staged`
+- 数据模式：前端 `services/*` + `model/*` 本地 mock
 
-### 1. 业务介绍
-
-零售行业模版小程序是个经典的单店版电商小程序，涵盖了电商的黄金链路流程，从商品->购物车->结算->订单等。小程序总共包含 28 个完整的页面，涵盖首页，商品详情页，个人中心，售后流程等基础页面。采用 mock 数据进行展示，提供了完整的零售商品展示、交易与售后流程。页面详情：
-
-<img src="https://tdesign.gtimg.com/miniprogram/template/retail/tdesign-starter-readmeV1.png" width = "650" height = "900" alt="模版小程序页面详情" align=center />
-
-主要页面截图如下：
-
-<p align="center">
-    <img alt="example-home" width="200" src="https://tdesign.gtimg.com/miniprogram/template/retail/example/v1/home.png" />
-    <img alt="example-sort" width="200" src="https://tdesign.gtimg.com/miniprogram/template/retail/example/v2/sort.png" />
-    <img alt="example-cart" width="200" src="https://tdesign.gtimg.com/miniprogram/template/retail/example/v1/cart.png" />
-    <img alt="example-user-center" width="200" src="https://tdesign.gtimg.com/miniprogram/template/retail/example/v1/user-center.png" />
-    <img alt="example-goods-detail" width="200" src="https://tdesign.gtimg.com/miniprogram/template/retail/example/v1/goods-detail.png" />
-    <img alt="example-pay" width="200" src="https://tdesign.gtimg.com/miniprogram/template/retail/example/v1/pay.png" />
-    <img alt="example-order" width="200" src="https://tdesign.gtimg.com/miniprogram/template/retail/example/v1/order.png" />
-    <img alt="example-order-detail" width="200" src="https://tdesign.gtimg.com/miniprogram/template/retail/example/v2/order.png" />
-</p>
-
-### 2. 项目构成
-
-零售行业模版小程序采用基础的 JavaScript + WXSS + ESLint 进行构建，降低了使用门槛。
-
-项目目录结构如下：
-
-```
-|-- tdesign-miniprogram-starter
-    |-- README.md
-    |-- app.js
-    |-- app.json
-    |-- app.wxss
-    |-- components	//	公共组件库
-    |-- config	//	基础配置
-    |-- custom-tab-bar	//	自定义 tabbar
-    |-- model	//	mock 数据
-    |-- pages
-    |   |-- cart	//	购物车相关页面
-    |   |-- coupon	//	优惠券相关页面
-    |   |-- goods	//	商品相关页面
-    |   |-- home	//	首页
-    |   |-- order	//	订单售后相关页面
-    |   |-- promotion-detail	//	营销活动页面
-    |   |-- usercenter	//	个人中心及收货地址相关页面
-    |-- services	//	请求接口
-    |-- style	//	公共样式与iconfont
-    |-- utils	//	工具库
-```
-
-### 3. 数据模拟
-
-零售小程序采用真实的接口数据，模拟后端返回逻辑，在小程序展示完整的购物场景与购物体验逻辑。
-
-### 4. 添加新页面
-
-1. 在 `pages `目录下创建对应的页面文件夹
-2. 在 `app.json` 文件中的 ` "pages"` 数组中加上页面路径
-3. [可选] 在 `project.config.json` 文件的 `"miniprogram-list"` 下添加页面配置
-
-## :hammer: 构建运行
+## 本地运行
 
 1. `npm install`
-2. 小程序开发工具中引入工程
-3. 构建 npm
+2. 使用微信开发者工具打开项目目录
+3. 在开发者工具中执行“构建 npm”
+4. `project.config.json` 中填入你自己的小程序 `AppID`
 
-## :art: 代码风格控制
+## 项目结构
 
-- `eslint`
-- `prettier`
+- `pages/`：页面层，包含首页、分类、菜篮、订单、售后、个人中心
+- `components/`：通用组件
+- `model/`：本地 mock 数据源
+- `services/`：数据获取与提交入口，当前默认走 mock
+- `assets/produce/`：果蔬主题本地插画资源
+- `config/index.js`：全局配置，`useMock: true` 表示启用本地模拟数据
 
-## :iphone: 基础库版本
+## 如何自定义商品和价格
 
-最低基础库版本`^2.6.5`
+当前没有后台管理系统，商品和价格直接维护在前端 mock 中：
 
-## :dart: 反馈
+- 商品详情与 SKU：`model/good.js`
+- 商品列表：`model/goods.js`
+- 分类：`model/category.js`
+- 搜索词与搜索结果：`model/search.js`
+- 菜篮示例：`model/cart.js`
 
-有任何问题，建议通过 [Github issues](https://github.com/Tencent/tdesign-miniprogram/issues) 反馈或扫码加入用户微信群。
+修改方式：
 
-<img src="https://raw.githubusercontent.com/Tencent/tdesign/main/packages/site-components/src/images/groups/wx-group.png" width="200" />
+- 新增商品：在 `model/good.js` 的 `allGoods` 数组新增一项
+- 改价格：修改商品的 `minSalePrice`、`maxSalePrice`，以及各 SKU 的 `salePrice` / `linePrice`
+- 改库存：修改 SKU 的 `stockQuantity`
 
-## :link: TDesign 其他技术栈实现
+## 后台在哪里
 
-- 移动端 小程序 实现：[mobile-miniprogram](https://github.com/Tencent/tdesign-miniprogram)
-- 桌面端 Vue 2 实现：[web-vue](https://github.com/Tencent/tdesign-vue)
-- 桌面端 Vue 3 实现：[web-vue-next](https://github.com/Tencent/tdesign-vue-next)
-- 桌面端 React 实现：[web-react](https://github.com/Tencent/tdesign-react)
+当前仓库 **不包含真实后台**。`services/*` 里大多数方法会在 `config.useMock === true` 时读取 `model/*` 的本地数据；关闭 mock 后，现状只会返回占位值 `real api`，还没有真正的服务端实现。
 
-## :page_with_curl: 开源协议
+如果要接入正式后台，优先改这些入口：
 
-TDesign 遵循 [MIT 协议](https://github.com/Tencent/tdesign-miniprogram/LICENSE)。
+- 商品：`services/good/*`
+- 菜篮：`services/cart/cart.js`
+- 用户：`services/usercenter/*`
+- 订单与支付：`services/order/*`
+
+## 用户注册、下单、付款现状
+
+### 用户注册
+
+当前 **没有注册系统**。用户信息来自 `model/usercenter.js` 的 mock 数据，仅用于页面展示。
+
+### 用户下单
+
+当前链路是可演示的：
+
+1. 首页/列表进入商品详情
+2. 选择 SKU 后加入菜篮或立即购买
+3. 进入结算页
+4. 提交订单
+
+结算与订单数据来自：
+
+- `services/order/orderConfirm.js`
+- `model/order/orderConfirm.js`
+- `model/order/mockData.js`
+
+### 付款
+
+当前 **不是真实微信支付**。`pages/order/order-confirm/pay.js` 中的 `wechatPayOrder()` 会直接走支付成功分支，用来演示支付结果页与订单流转。
+
+如果要上线真实支付，至少需要补齐：
+
+- 小程序登录换取用户标识
+- 服务端创建订单
+- 服务端生成微信支付参数
+- 前端调用 `wx.requestPayment`
+- 服务端处理支付回调与订单状态更新
+
+## 开发建议
+
+- 做演示版：继续维护 `model/*` 即可
+- 做可运营版本：先补服务端和管理后台，再把 `services/*` 从 mock 切到真实 API
+- 不要把 `AppID`、密钥、商户号等敏感配置提交到 GitHub
