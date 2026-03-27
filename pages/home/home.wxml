@@ -7,7 +7,7 @@
     <t-search
       t-class-input="t-search__input"
       t-class-input-container="t-search__input-container"
-      placeholder="搜索示例商品"
+      placeholder="搜索商品"
       leftIcon=""
       disabled
     >

@@ -87,7 +87,7 @@ Component({
     },
 
     overlimit(e) {
-      const text = e.detail.type === 'minus' ? '该商品数量不能再减少了' : '同一商品最多购买 99 件';
+      const text = e.detail.type === 'minus' ? '至少保留1件' : '最多99件';
       Toast({
         context: this,
         selector: '#t-toast',
@@ -103,7 +103,7 @@ Component({
         Toast({
           context: this,
           selector: '#t-toast',
-          message: '部分商品库存不足',
+          message: '有商品库存不足',
         });
         return;
       }

@@ -175,9 +175,9 @@ Page({
     Toast({
       context: this,
       selector: '#t-toast',
-      message: `${isSelected ? '选择' : '取消'}"${
+      message: `${isSelected ? '已选' : '取消'} ${
         currentGoods.title.length > 5 ? `${currentGoods.title.slice(0, 5)}...` : currentGoods.title
-      }"`,
+      }`,
       icon: '',
     });
     this.selectGoodsService({ spuId, skuId, isSelected }).then(() => this.refreshData());
@@ -205,14 +205,14 @@ Page({
         Toast({
           context: this,
           selector: '#t-toast',
-          message: '当前商品库存不足',
+          message: '库存不足',
         });
         return;
       }
       Dialog.confirm({
-        title: '商品库存不足',
-        content: `当前商品库存不足，最大可购买数量为${stockQuantity}件`,
-        confirmBtn: '修改为最大可购买数量',
+        title: '库存不足',
+        content: `最多可买${stockQuantity}件`,
+        confirmBtn: '改为最大数量',
         cancelBtn: '取消',
       })
         .then(() => {
@@ -245,12 +245,12 @@ Page({
       goods: { spuId, skuId },
     } = e.detail;
     Dialog.confirm({
-      content: '确认删除该商品吗?',
-      confirmBtn: '确定',
+      content: '删除该商品？',
+      confirmBtn: '删除',
       cancelBtn: '取消',
     }).then(() => {
       this.deleteGoodsService({ spuId, skuId }).then(() => {
-        Toast({ context: this, selector: '#t-toast', message: '商品删除成功' });
+        Toast({ context: this, selector: '#t-toast', message: '已删除' });
         this.refreshData();
       });
     });
@@ -261,7 +261,7 @@ Page({
     Toast({
       context: this,
       selector: '#t-toast',
-      message: `${isAllSelected ? '取消' : '点击'}了全选按钮`,
+      message: isAllSelected ? '已取消全选' : '已全选',
     });
     // 调用接口改变全选
   },
