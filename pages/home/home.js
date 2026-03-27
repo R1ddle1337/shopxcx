@@ -4,17 +4,10 @@ import Toast from 'tdesign-miniprogram/toast/index';
 
 Page({
   data: {
-    imgSrcs: [],
     tabList: [],
     goodsList: [],
     goodsListLoadStatus: 0,
     pageLoading: false,
-    current: 1,
-    autoplay: true,
-    duration: '500',
-    interval: 5000,
-    navigation: { type: 'dots' },
-    swiperImageProps: { mode: 'scaleToFill' },
   },
 
   goodListPagination: {
@@ -54,10 +47,10 @@ Page({
     this.setData({
       pageLoading: true,
     });
-    fetchHome().then(({ swiper, tabList }) => {
+
+    fetchHome().then(({ tabList }) => {
       this.setData({
         tabList,
-        imgSrcs: swiper,
         pageLoading: false,
       });
       this.loadGoodsList(true);
@@ -119,12 +112,5 @@ Page({
 
   navToSearchPage() {
     wx.navigateTo({ url: '/pages/goods/search/index' });
-  },
-
-  navToActivityDetail({ detail }) {
-    const { index: promotionID = 0 } = detail || {};
-    wx.navigateTo({
-      url: `/pages/promotion/promotion-detail/index?promotion_id=${promotionID}`,
-    });
   },
 });
