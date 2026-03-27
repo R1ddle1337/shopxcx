@@ -19,7 +19,7 @@ Page({
 
   goodListPagination: {
     index: 0,
-    num: 20,
+    num: 2,
   },
 
   privateData: {
@@ -83,16 +83,15 @@ Page({
     this.setData({ goodsListLoadStatus: 1 });
 
     const pageSize = this.goodListPagination.num;
-    let pageIndex = this.privateData.tabIndex * pageSize + this.goodListPagination.index + 1;
-    if (fresh) {
-      pageIndex = 0;
-    }
+    const pageIndex = fresh ? 0 : this.data.goodsList.length;
 
     try {
       const nextList = await fetchGoodsList(pageIndex, pageSize);
+      const goodsList = fresh ? nextList : this.data.goodsList.concat(nextList);
+
       this.setData({
-        goodsList: fresh ? nextList : this.data.goodsList.concat(nextList),
-        goodsListLoadStatus: 0,
+        goodsList,
+        goodsListLoadStatus: nextList.length < pageSize ? 2 : 0,
       });
 
       this.goodListPagination.index = pageIndex;

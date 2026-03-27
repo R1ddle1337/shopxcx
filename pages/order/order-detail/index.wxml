@@ -4,7 +4,6 @@
   bindrefresh="onPullDownRefresh_"
   t-class-indicator="t-class-indicator"
 >
-  <!-- 页面内容 -->
   <view class="order-detail">
     <view class="header">
       <view class="order-detail__header">
@@ -37,7 +36,6 @@
         </view>
       </view>
 
-      <!-- 物流 -->
       <view class="order-logistics" wx:if="{{logisticsNodes[0]}}" bindtap="onDeliveryClick">
         <t-icon name="deliver" size="40rpx" class="logistics-icon" prefix="wr" />
         <view class="logistics-content">
@@ -47,7 +45,7 @@
         <t-icon class="logistics-back" name="arrow_forward" size="36rpx" prefix="wr" />
       </view>
       <view class="border-bottom" wx:if="{{logisticsNodes[0]}}" />
-      <!-- 收货地址 -->
+
       <view class="order-logistics">
         <t-icon name="location" size="40rpx" class="logistics-icon" prefix="wr" />
         <view class="logistics-content">
@@ -57,7 +55,7 @@
         <view wx:if="{{addressEditable}}" class="edit-text" bindtap="onEditAddressTap"> 修改 </view>
       </view>
     </view>
-    <!-- 店铺及商品 -->
+
     <order-card order="{{_order}}" use-top-right-slot>
       <order-goods-card
         wx:for="{{_order.goodsList}}"
@@ -77,6 +75,7 @@
           goodsIndex="{{gIndex}}"
         />
       </order-goods-card>
+
       <view class="pay-detail">
         <view class="pay-item">
           <text>商品总额</text>
@@ -100,17 +99,6 @@
           </view>
         </view>
         <view class="pay-item">
-          <text>优惠券</text>
-          <view class="pay-item__right" catchtap="onOpenCoupons">
-            <block wx:if="{{order.couponAmount}}">
-              -
-              <price fill decimalSmaller price="{{order.couponAmount}}" />
-            </block>
-            <text wx:else>无可用</text>
-            <!-- <t-icon name="chevron-right" size="32rpx" color="#BBBBBB" /> -->
-          </view>
-        </view>
-        <view class="pay-item">
           <text>{{isPaid ? '实付' : '应付'}}</text>
           <price
             fill
@@ -121,6 +109,7 @@
         </view>
       </view>
     </order-card>
+
     <view class="pay-detail padding-inline">
       <view class="pay-item">
         <text>订单编号</text>
@@ -156,9 +145,11 @@
       </view>
     </view>
   </view>
+
   <view wx:if="{{_order.buttons.length > 0}}" class="bottom-bar">
     <order-button-bar order="{{_order}}" bindrefresh="onRefresh" isBtnMax />
   </view>
 </t-pull-down-refresh>
+
 <t-toast id="t-toast" />
 <t-dialog id="t-dialog" />

@@ -9,18 +9,6 @@ const menuData = [
       url: '',
       type: 'address',
     },
-    {
-      title: '优惠券',
-      tit: '',
-      url: '',
-      type: 'coupon',
-    },
-    {
-      title: '积分',
-      tit: '',
-      url: '',
-      type: 'point',
-    },
   ],
   [
     {
@@ -103,6 +91,7 @@ Page({
     this.getTabBar().init();
     this.init();
   },
+
   onPullDownRefresh() {
     this.init();
   },
@@ -113,19 +102,19 @@ Page({
 
   fetUseriInfoHandle() {
     fetchUserCenter().then(({ userInfo, countsData, orderTagInfos: orderInfo, customerServiceInfo }) => {
-      // eslint-disable-next-line no-unused-expressions
       menuData?.[0].forEach((v) => {
         countsData.forEach((counts) => {
           if (counts.type === v.type) {
-            // eslint-disable-next-line no-param-reassign
             v.tit = counts.num;
           }
         });
       });
+
       const info = orderTagInfos.map((v, index) => ({
         ...v,
         ...orderInfo[index],
       }));
+
       this.setData({
         userInfo,
         menuData,
@@ -157,20 +146,6 @@ Page({
           icon: '',
           duration: 1000,
         });
-        break;
-      }
-      case 'point': {
-        Toast({
-          context: this,
-          selector: '#t-toast',
-          message: '你点击了积分菜单',
-          icon: '',
-          duration: 1000,
-        });
-        break;
-      }
-      case 'coupon': {
-        wx.navigateTo({ url: '/pages/coupon/coupon-list/index' });
         break;
       }
       default: {
