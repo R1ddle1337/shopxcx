@@ -428,6 +428,188 @@ const normalizeAdminGood = (payload = {}, currentGood = null) => {
   };
 };
 
+const normalizeAdminCategory = (payload = {}, currentCategory = null) => {
+  const groupId = currentCategory?.groupId || normalizeString(payload.groupId, `category-${Date.now()}`);
+  const inferredCategoryId = /vegetable/i.test(groupId) ? 'vegetable' : 'fruit';
+  const thumbnail = normalizeString(
+    payload.thumbnail,
+    currentCategory?.thumbnail || getDefaultGoodsImage(inferredCategoryId),
+  );
+  const name = normalizeString(payload.name, currentCategory?.name || '未命名分类');
+  const sectionGroupId = normalizeString(
+    payload.sectionGroupId,
+    currentCategory?.children?.[0]?.groupId || `${groupId}-group`,
+  );
+  const sampleGroupId = normalizeString(
+    payload.sampleGroupId,
+    currentCategory?.children?.[0]?.children?.[0]?.groupId || `${groupId}-item`,
+  );
+
+  return {
+    groupId,
+    name,
+    thumbnail,
+    children: [
+      {
+        groupId: sectionGroupId,
+        name: normalizeString(payload.sectionName, currentCategory?.children?.[0]?.name || `${name}专区`),
+        thumbnail,
+        children: [
+          {
+            groupId: sampleGroupId,
+            name: normalizeString(
+              payload.sampleItemName,
+              currentCategory?.children?.[0]?.children?.[0]?.name || `${name}示例`,
+            ),
+            thumbnail,
+          },
+        ],
+      },
+    ],
+  };
+};
+
+const ORDER_STATUS_META = {
+  5: {
+    name: '待付款',
+    remark: '订单已提交，等待付款',
+    buttons: [
+      { primary: false, type: 2, name: '取消订单' },
+      { primary: true, type: 1, name: '去支付' },
+    ],
+  },
+  10: {
+    name: '待发货',
+    remark: '订单已支付，等待拣货出库',
+    buttons: [{ primary: true, type: 9, name: '再次购买' }],
+  },
+  40: {
+    name: '待收货',
+    remark: '商品已发出，等待签收',
+    buttons: [
+      { primary: false, type: 8, name: '查看物流' },
+      { primary: true, type: 3, name: '确认收货' },
+    ],
+  },
+  50: {
+    name: '交易完成',
+    remark: '订单已完成',
+    buttons: [{ primary: true, type: 6, name: '评价' }],
+  },
+  80: {
+    name: '已取消',
+    remark: '订单已取消',
+    buttons: [{ primary: true, type: 9, name: '再次购买' }],
+  },
+};
+
+const getOrderStatusMeta = (status) => ORDER_STATUS_META[status] || ORDER_STATUS_META[10];
+
+const buildAdminOrderTrajectory = ({ orderStatus, createTime, paySuccessTime, sendTime, receiveTime, cancelTime }) => {
+  const submittedAt = Number(createTime || Date.now());
+  const paidAt = paySuccessTime ? Number(paySuccessTime) : submittedAt + 1000;
+  const shippedAt = sendTime ? Number(sendTime) : paidAt + 60 * 60 * 1000;
+  const receivedAt = receiveTime ? Number(receiveTime) : shippedAt + 2 * 60 * 60 * 1000;
+  const canceledAt = cancelTime ? Number(cancelTime) : submittedAt + 30 * 60 * 1000;
+
+  if (orderStatus === 5) {
+    return buildTrajectory([{ title: '', code: '200001', status: '订单已提交，等待支付', timestamp: submittedAt }]);
+  }
+
+  if (orderStatus === 10) {
+    return buildTrajectory([
+      { title: '已支付', code: '200002', status: '订单已支付，等待拣货出库', timestamp: paidAt },
+      { title: '', code: '200001', status: '订单已提交', timestamp: submittedAt },
+    ]);
+  }
+
+  if (orderStatus === 40) {
+    return buildTrajectory([
+      { title: '已发货', code: '200003', status: '商品已发出，请留意签收', timestamp: shippedAt },
+      { title: '已支付', code: '200002', status: '订单已支付，等待拣货出库', timestamp: paidAt },
+      { title: '', code: '200001', status: '订单已提交', timestamp: submittedAt },
+    ]);
+  }
+
+  if (orderStatus === 50) {
+    return buildTrajectory([
+      { title: '已签收', code: '200005', status: '订单已完成，欢迎再次下单', timestamp: receivedAt },
+      { title: '已发货', code: '200003', status: '商品已发出，请留意签收', timestamp: shippedAt },
+      { title: '已支付', code: '200002', status: '订单已支付，等待拣货出库', timestamp: paidAt },
+      { title: '', code: '200001', status: '订单已提交', timestamp: submittedAt },
+    ]);
+  }
+
+  return buildTrajectory(
+    [
+      { title: '已取消', code: '200004', status: '订单已取消', timestamp: canceledAt },
+      paySuccessTime
+        ? { title: '已支付', code: '200002', status: '订单已支付', timestamp: paidAt }
+        : null,
+      { title: '', code: '200001', status: '订单已提交', timestamp: submittedAt },
+    ].filter(Boolean),
+  );
+};
+
+const updateAdminOrder = (order, payload = {}) => {
+  const now = Date.now();
+  const nextStatus = normalizeInteger(payload.orderStatus, order.orderStatus);
+  const currentPaySuccessTime = Number(order.paymentVO?.paySuccessTime || 0) || null;
+  const paySuccessTime =
+    currentPaySuccessTime ||
+    (nextStatus !== 5 && nextStatus !== 80 ? now : null);
+  const sendTime =
+    payload.sendTime ||
+    order.logisticsVO?.sendTime ||
+    (nextStatus >= 40 ? `${now}` : null);
+  const receiveTime =
+    payload.receiveTime ||
+    order.logisticsVO?.arrivalTime ||
+    (nextStatus === 50 ? `${now}` : null);
+  const cancelTime = payload.cancelTime || `${now}`;
+  const statusMeta = getOrderStatusMeta(nextStatus);
+
+  return {
+    ...order,
+    orderStatus: nextStatus,
+    orderStatusName: statusMeta.name,
+    orderStatusRemark: statusMeta.remark,
+    remark: payload.remark !== undefined ? payload.remark : order.remark,
+    buttonVOs: statusMeta.buttons,
+    autoCancelTime: nextStatus === 5 ? `${now + 24 * 60 * 60 * 1000}` : null,
+    logisticsVO: {
+      ...order.logisticsVO,
+      logisticsNo:
+        payload.logisticsNo !== undefined ? payload.logisticsNo : order.logisticsVO?.logisticsNo || '',
+      logisticsCompanyName:
+        payload.logisticsCompanyName !== undefined
+          ? payload.logisticsCompanyName
+          : order.logisticsVO?.logisticsCompanyName || '',
+      logisticsCompanyTel:
+        payload.logisticsCompanyTel !== undefined
+          ? payload.logisticsCompanyTel
+          : order.logisticsVO?.logisticsCompanyTel || '',
+      sendTime,
+      arrivalTime: receiveTime,
+    },
+    paymentVO: {
+      ...order.paymentVO,
+      payStatus: paySuccessTime ? 2 : 1,
+      payWayName: paySuccessTime ? '微信支付' : null,
+      payTime: paySuccessTime ? `${paySuccessTime}` : null,
+      paySuccessTime: paySuccessTime ? `${paySuccessTime}` : null,
+    },
+    trajectoryVos: buildAdminOrderTrajectory({
+      orderStatus: nextStatus,
+      createTime: order.createTime,
+      paySuccessTime,
+      sendTime,
+      receiveTime,
+      cancelTime,
+    }),
+  };
+};
+
 const createOrUpdateAddress = (state, userId, payload, addressId) => {
   const nextId = addressId || payload.addressId || payload.id || `addr-${state.nextAddressSeq++}`;
   const nextAddress = {
@@ -526,6 +708,8 @@ async function handler(req, res) {
   const addressMatch = pathname.match(/^\/api\/addresses\/([^/]+)$/);
   const cartItemMatch = pathname.match(/^\/api\/cart\/items\/([^/]+)$/);
   const adminGoodsMatch = pathname.match(/^\/api\/admin\/goods\/([^/]+)$/);
+  const adminCategoryMatch = pathname.match(/^\/api\/admin\/categories\/([^/]+)$/);
+  const adminOrderMatch = pathname.match(/^\/api\/admin\/orders\/([^/]+)$/);
 
   if (pathname === '/api/health' && req.method === 'GET') {
     ok(res, { code: 'Success', success: true, data: { service: 'fresh-garden-local-api', dataFilePath } });
@@ -827,6 +1011,115 @@ async function handler(req, res) {
     });
     if (!nextState) return;
     ok(res, { success: true, code: 'Success' });
+    return;
+  }
+
+  if (pathname === '/api/admin/categories' && req.method === 'GET') {
+    ok(res, { data: (await readState()).categories, code: 'Success', success: true });
+    return;
+  }
+
+  if (adminCategoryMatch && req.method === 'GET') {
+    const state = await readState();
+    const target = state.categories.find((item) => item.groupId === adminCategoryMatch[1]);
+    if (!target) {
+      fail(res, 404, '分类不存在');
+      return;
+    }
+    ok(res, { data: target, code: 'Success', success: true });
+    return;
+  }
+
+  if (pathname === '/api/admin/categories' && req.method === 'POST') {
+    const nextState = await updateState(async (draft) => {
+      const nextCategory = normalizeAdminCategory(body);
+      draft.categories.push(nextCategory);
+      return draft;
+    });
+    ok(res, { data: nextState.categories[nextState.categories.length - 1], code: 'Success', success: true }, 201);
+    return;
+  }
+
+  if (adminCategoryMatch && req.method === 'PATCH') {
+    const nextState = await updateState(async (draft) => {
+      const target = draft.categories.find((item) => item.groupId === adminCategoryMatch[1]);
+      if (!target) throw new Error('分类不存在');
+      const nextCategory = normalizeAdminCategory(body, target);
+      draft.categories = draft.categories.map((item) => (item.groupId === adminCategoryMatch[1] ? nextCategory : item));
+      return draft;
+    }).catch((error) => {
+      fail(res, 404, error.message);
+      return null;
+    });
+    if (!nextState) return;
+    ok(res, { data: nextState.categories.find((item) => item.groupId === adminCategoryMatch[1]), code: 'Success', success: true });
+    return;
+  }
+
+  if (adminCategoryMatch && req.method === 'DELETE') {
+    const nextState = await updateState(async (draft) => {
+      const inUse = draft.goods.some((item) => (item.categoryIds || []).includes(adminCategoryMatch[1]));
+      if (inUse) throw new Error('该分类下仍有关联商品，请先调整商品分类');
+      const hasTarget = draft.categories.some((item) => item.groupId === adminCategoryMatch[1]);
+      if (!hasTarget) throw new Error('分类不存在');
+      draft.categories = draft.categories.filter((item) => item.groupId !== adminCategoryMatch[1]);
+      return draft;
+    }).catch((error) => {
+      fail(res, 400, error.message);
+      return null;
+    });
+    if (!nextState) return;
+    ok(res, { success: true, code: 'Success' });
+    return;
+  }
+
+  if (pathname === '/api/admin/orders' && req.method === 'GET') {
+    const state = await readState();
+    const orderStatus = query.orderStatus !== undefined ? Number(query.orderStatus) : null;
+    const pageNum = Number(query.pageNum || 1);
+    const pageSize = Number(query.pageSize || 20);
+    let orders = [...state.orders].sort((prev, next) => Number(next.createTime) - Number(prev.createTime));
+    if (Number.isFinite(orderStatus) && orderStatus !== -1) {
+      orders = orders.filter((item) => item.orderStatus === orderStatus);
+    }
+    ok(
+      res,
+      {
+        data: {
+          orders: orders.slice((pageNum - 1) * pageSize, pageNum * pageSize),
+          totalCount: orders.length,
+        },
+        code: 'Success',
+        success: true,
+      },
+    );
+    return;
+  }
+
+  if (adminOrderMatch && req.method === 'GET') {
+    const state = await readState();
+    const target = state.orders.find((item) => item.orderNo === adminOrderMatch[1]);
+    if (!target) {
+      fail(res, 404, '订单不存在');
+      return;
+    }
+    ok(res, { data: target, code: 'Success', success: true });
+    return;
+  }
+
+  if (adminOrderMatch && req.method === 'PATCH') {
+    const nextState = await updateState(async (draft) => {
+      const target = draft.orders.find((item) => item.orderNo === adminOrderMatch[1]);
+      if (!target) throw new Error('订单不存在');
+      const nextOrder = updateAdminOrder(target, body);
+      draft.orders = draft.orders.map((item) => (item.orderNo === adminOrderMatch[1] ? nextOrder : item));
+      return draft;
+    }).catch((error) => {
+      fail(res, 404, error.message);
+      return null;
+    });
+    if (!nextState) return;
+    ok(res, { data: nextState.orders.find((item) => item.orderNo === adminOrderMatch[1]), code: 'Success', success: true });
     return;
   }
 

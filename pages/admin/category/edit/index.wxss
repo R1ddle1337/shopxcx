@@ -1,0 +1,59 @@
+page {
+  background: #f6f8f2;
+}
+
+.editor-page {
+  padding: 24rpx;
+}
+
+.loading-wrap {
+  margin-top: 120rpx;
+  text-align: center;
+}
+
+.section__title {
+  margin-bottom: 12rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #233119;
+}
+
+.panel,
+.preview-card {
+  padding: 24rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+  box-shadow: 0 16rpx 40rpx rgba(44, 74, 29, 0.08);
+}
+
+.preview-card {
+  margin-top: 24rpx;
+}
+
+.field {
+  padding: 22rpx 0;
+}
+
+.field + .field {
+  border-top: 1px solid #edf1e7;
+}
+
+.field__label {
+  margin-bottom: 10rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #233119;
+}
+
+.preview-card__image {
+  width: 100%;
+  height: 300rpx;
+  margin-top: 8rpx;
+  border-radius: 20rpx;
+  background: #eef4e6;
+}
+
+.submit-bar {
+  margin-top: 32rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+}

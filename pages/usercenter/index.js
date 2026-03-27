@@ -34,6 +34,23 @@ menuData[1].unshift({
   type: 'admin-goods',
 });
 
+menuData[1].splice(
+  1,
+  0,
+  {
+    title: '分类后台',
+    tit: '',
+    url: '',
+    type: 'admin-category',
+  },
+  {
+    title: '订单后台',
+    tit: '',
+    url: '',
+    type: 'admin-order',
+  },
+);
+
 const orderTagInfos = [
   {
     title: '待付款',
@@ -143,6 +160,14 @@ Page({
       }
       case 'admin-goods': {
         wx.navigateTo({ url: '/pages/admin/goods/index' });
+        break;
+      }
+      case 'admin-category': {
+        wx.navigateTo({ url: '/pages/admin/category/index' });
+        break;
+      }
+      case 'admin-order': {
+        wx.navigateTo({ url: '/pages/admin/order/index' });
         break;
       }
       case 'service': {

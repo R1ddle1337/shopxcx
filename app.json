@@ -48,7 +48,14 @@
     {
       "root": "pages/admin",
       "name": "admin",
-      "pages": ["goods/index", "goods/edit/index"]
+      "pages": [
+        "goods/index",
+        "goods/edit/index",
+        "category/index",
+        "category/edit/index",
+        "order/index",
+        "order/detail/index"
+      ]
     }
   ],
   "tabBar": {

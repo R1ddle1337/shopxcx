@@ -1,0 +1,118 @@
+page {
+  background: #f6f8f2;
+}
+
+.editor-page {
+  padding: 24rpx;
+}
+
+.loading-wrap {
+  margin-top: 120rpx;
+  text-align: center;
+}
+
+.section__title {
+  margin: 24rpx 0 12rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #233119;
+}
+
+.panel,
+.goods-card {
+  padding: 24rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+  box-shadow: 0 16rpx 40rpx rgba(44, 74, 29, 0.08);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 14rpx 0;
+}
+
+.info-row + .info-row {
+  border-top: 1px solid #edf1e7;
+}
+
+.info-row__label {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  color: #6a7562;
+}
+
+.info-row__value {
+  flex: 1;
+  text-align: right;
+  font-size: 24rpx;
+  color: #233119;
+}
+
+.info-row__value.address {
+  line-height: 1.5;
+}
+
+.info-row__value.accent {
+  color: #d54524;
+  font-weight: 700;
+}
+
+.goods-card {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.goods-card__thumb {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 18rpx;
+  background: #eef4e6;
+}
+
+.goods-card__content {
+  flex: 1;
+}
+
+.goods-card__title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #233119;
+}
+
+.goods-card__meta {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #6a7562;
+}
+
+.field {
+  padding: 22rpx 0;
+}
+
+.field + .field {
+  border-top: 1px solid #edf1e7;
+}
+
+.field__label {
+  margin-bottom: 10rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #233119;
+}
+
+.picker-field {
+  min-height: 64rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 8rpx;
+  font-size: 28rpx;
+  color: #233119;
+}
+
+.submit-bar {
+  margin-top: 32rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+}

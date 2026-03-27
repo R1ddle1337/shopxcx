@@ -1,0 +1,74 @@
+<view class="editor-page">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <t-loading theme="circular" text="加载分类配置中..." />
+  </view>
+
+  <block wx:else>
+    <view class="section__title">分类信息</view>
+
+    <view class="panel">
+      <view class="field">
+        <view class="field__label">分类名称</view>
+        <t-input value="{{form.name}}" placeholder="如：鲜果" borderless data-field="name" bind:change="onFieldChange" />
+      </view>
+
+      <view class="field">
+        <view class="field__label">分类 ID</view>
+        <t-input
+          value="{{form.groupId}}"
+          placeholder="如：fruit"
+          borderless
+          data-field="groupId"
+          bind:change="onFieldChange"
+          disabled="{{isEdit}}"
+        />
+      </view>
+
+      <view class="field">
+        <view class="field__label">分类图片</view>
+        <t-input
+          value="{{form.thumbnail}}"
+          placeholder="/assets/produce/apple.svg"
+          borderless
+          data-field="thumbnail"
+          bind:change="onFieldChange"
+        />
+      </view>
+
+      <view class="field">
+        <view class="field__label">专题名称</view>
+        <t-input
+          value="{{form.sectionName}}"
+          placeholder="如：热卖鲜果"
+          borderless
+          data-field="sectionName"
+          bind:change="onFieldChange"
+        />
+      </view>
+
+      <view class="field">
+        <view class="field__label">示例名称</view>
+        <t-input
+          value="{{form.sampleItemName}}"
+          placeholder="如：苹果礼盒"
+          borderless
+          data-field="sampleItemName"
+          bind:change="onFieldChange"
+        />
+      </view>
+    </view>
+
+    <view wx:if="{{form.thumbnail}}" class="preview-card">
+      <view class="section__title">分类图片预览</view>
+      <image class="preview-card__image" src="{{form.thumbnail}}" mode="aspectFill" />
+    </view>
+
+    <view class="submit-bar">
+      <t-button theme="primary" size="large" block loading="{{saving}}" bind:tap="handleSubmit">
+        {{isEdit ? '保存分类' : '创建分类'}}
+      </t-button>
+    </view>
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

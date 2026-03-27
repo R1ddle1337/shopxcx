@@ -1,0 +1,40 @@
+<view class="admin-page">
+  <view class="toolbar">
+    <view>
+      <view class="toolbar__title">订单管理</view>
+      <view class="toolbar__desc">查看全部订单，统一处理发货、签收和取消状态。</view>
+    </view>
+    <view class="toolbar__count">共 {{totalCount}} 单</view>
+  </view>
+
+  <view class="filter-card">
+    <view class="filter-card__label">订单状态</view>
+    <picker range="{{statusOptions}}" range-key="label" value="{{statusIndex}}" bindchange="onStatusChange">
+      <view class="picker-field">{{statusOptions[statusIndex].label}}</view>
+    </picker>
+    <t-button variant="text" size="small" bind:tap="resetFilter">重置</t-button>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <t-loading theme="circular" text="加载订单中..." />
+  </view>
+
+  <block wx:elif="{{orderList.length}}">
+    <view class="order-card" wx:for="{{orderList}}" wx:key="orderNo" data-order-no="{{item.orderNo}}" bind:tap="openDetail">
+      <view class="order-card__header">
+        <view class="order-card__no">{{item.orderNo}}</view>
+        <view class="order-card__status">{{item.orderStatusName}}</view>
+      </view>
+      <view class="order-card__meta">客户：{{item.customerText}}</view>
+      <view class="order-card__meta">商品数：{{item.goodsCountText}} · 创建于 {{item.createTimeText}}</view>
+      <view class="order-card__amount">￥{{item.amountText}}</view>
+    </view>
+  </block>
+
+  <view wx:else class="empty-state">
+    <view class="empty-state__title">没有匹配的订单</view>
+    <view class="empty-state__desc">可以切换状态筛选查看其他订单。</view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>
