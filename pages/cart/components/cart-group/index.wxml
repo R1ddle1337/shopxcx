@@ -1,5 +1,3 @@
-<wxs src="./index.wxs" module="handlePromotion" />
-
 <wxs src="./utils.wxs" module="utils" />
 
 <view class="cart-group">
@@ -21,22 +19,6 @@
       </view>
     </view>
     <block wx:for="{{store.promotionGoodsList}}" wx:for-item="promotion" wx:for-index="promoindex" wx:key="promoindex">
-      <view
-        class="promotion-wrap"
-        wx:if="{{handlePromotion.hasPromotion(promotion.promotionCode)}}"
-        bindtap="gotoBuyMore"
-        data-promotion="{{promotion}}"
-        data-store-id="{{store.storeId}}"
-      >
-        <view class="promotion-title">
-          <view class="promotion-icon">{{promotion.tag}}</view>
-          <view class="promotion-text">{{promotion.description}}</view>
-        </view>
-        <view class="promotion-action action-btn" hover-class="action-btn--active">
-          <view class="promotion-action-label"> {{promotion.isNeedAddOnShop == 1 ? '去凑单' : '再逛逛'}} </view>
-          <t-icon name="chevron-right" size="32rpx" color="#BBBBBB" />
-        </view>
-      </view>
       <view
         class="goods-item"
         wx:for="{{promotion.goodsPromotionList}}"
@@ -90,12 +72,6 @@
           <view slot="right" class="swiper-right-del" bindtap="deleteGoods" data-goods="{{goods}}"> 删除 </view>
         </swipeout>
       </view>
-      <view
-        class="promotion-line-wrap"
-        wx:if="{{handlePromotion.hasPromotion(promotion.promotionCode) && promoindex != (store.promotionGoodsList.length - 2)}}"
-      >
-        <view class="promotion-line" />
-      </view>
     </block>
     <block wx:if="{{store.shortageGoodsList.length>0}}">
       <view
@@ -129,12 +105,6 @@
           </view>
           <view slot="right" class="swiper-right-del" bindtap="deleteGoods" data-goods="{{goods}}"> 删除 </view>
         </swipeout>
-      </view>
-      <view
-        class="promotion-line-wrap"
-        wx:if="{{handlePromotion.hasPromotion(promotion.promotionCode) && promoindex != (store.promotionGoodsList.length - 2)}}"
-      >
-        <view class="promotion-line" />
       </view>
     </block>
   </view>

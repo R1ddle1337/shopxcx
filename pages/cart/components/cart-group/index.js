@@ -95,11 +95,6 @@ Component({
       });
     },
 
-    gotoBuyMore(e) {
-      const { promotion, storeId = '' } = e.currentTarget.dataset;
-      this.triggerEvent('gocollect', { promotion, storeId });
-    },
-
     selectStore(e) {
       const { storeIndex } = e.currentTarget.dataset;
       const store = this.data.storeGoods[storeIndex];

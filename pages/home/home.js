@@ -1,10 +1,8 @@
-import { fetchHome } from '../../services/home/home';
 import { fetchGoodsList } from '../../services/good/fetchGoods';
 import Toast from 'tdesign-miniprogram/toast/index';
 
 Page({
   data: {
-    tabList: [],
     goodsList: [],
     goodsListLoadStatus: 0,
     pageLoading: false,
@@ -13,10 +11,6 @@ Page({
   goodListPagination: {
     index: 0,
     num: 2,
-  },
-
-  privateData: {
-    tabIndex: 0,
   },
 
   onShow() {
@@ -41,25 +35,17 @@ Page({
     this.loadHomePage();
   },
 
-  loadHomePage() {
+  async loadHomePage() {
     wx.stopPullDownRefresh();
 
     this.setData({
       pageLoading: true,
     });
 
-    fetchHome().then(({ tabList }) => {
-      this.setData({
-        tabList,
-        pageLoading: false,
-      });
-      this.loadGoodsList(true);
+    await this.loadGoodsList(true);
+    this.setData({
+      pageLoading: false,
     });
-  },
-
-  tabChangeHandle(e) {
-    this.privateData.tabIndex = e.detail;
-    this.loadGoodsList(true);
   },
 
   onReTry() {
