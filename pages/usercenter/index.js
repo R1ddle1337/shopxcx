@@ -27,6 +27,13 @@ const menuData = [
   ],
 ];
 
+menuData[1].unshift({
+  title: '商品后台',
+  tit: '',
+  url: '',
+  type: 'admin-goods',
+});
+
 const orderTagInfos = [
   {
     title: '待付款',
@@ -132,6 +139,10 @@ Page({
     switch (type) {
       case 'address': {
         wx.navigateTo({ url: '/pages/user/address/list/index' });
+        break;
+      }
+      case 'admin-goods': {
+        wx.navigateTo({ url: '/pages/admin/goods/index' });
         break;
       }
       case 'service': {

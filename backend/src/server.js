@@ -5,6 +5,9 @@ const {
   STORE_NAME,
   STORE_SERVICE_PHONE,
   STORE_SERVICE_TIME,
+  detailFarm,
+  detailDelivery,
+  buildSku,
   findSku,
   getSalePrice,
   getLinePrice,
@@ -246,6 +249,182 @@ const buildSettleDetail = (state, payload, userId) => {
     },
     code: 'Success',
     success: true,
+  };
+};
+
+const normalizeNumber = (value, fallback = 0) => {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+};
+
+const normalizeInteger = (value, fallback = 0) => {
+  const number = Math.round(normalizeNumber(value, fallback));
+  return number >= 0 ? number : 0;
+};
+
+const normalizeString = (value, fallback = '') => {
+  const text = `${value ?? ''}`.trim();
+  return text || fallback;
+};
+
+const normalizeFlag = (value, fallback = 1) => {
+  if (value === undefined || value === null || value === '') return fallback;
+  return value === true || value === 1 || value === '1' ? 1 : 0;
+};
+
+const uniqueStrings = (list = []) =>
+  Array.from(
+    new Set(
+      list
+        .map((item) => `${item || ''}`.trim())
+        .filter(Boolean),
+    ),
+  );
+
+const normalizeImageList = (list, fallbackList = []) => {
+  const normalized = Array.isArray(list) ? uniqueStrings(list) : [];
+  return normalized.length ? normalized : uniqueStrings(fallbackList);
+};
+
+const getDefaultGoodsImage = (categoryId) =>
+  categoryId === 'vegetable' ? '/assets/produce/tomato.svg' : '/assets/produce/apple.svg';
+
+const buildExistingAdminSkuItems = (good = {}) =>
+  (good.skuList || []).map((item, index) => {
+    const specInfo = item.specInfo?.[0] || {};
+    return {
+      skuId: item.skuId,
+      specValueId: specInfo.specValueId || `${good.spuId}-spec-1-${index + 1}`,
+      specValue: specInfo.specValue || `规格${index + 1}`,
+      salePrice: getSalePrice(item),
+      linePrice: getLinePrice(item),
+      stockQuantity: normalizeInteger(item.stockInfo?.stockQuantity, 0),
+      weight: normalizeNumber(item.weight?.value, 1),
+      skuImage: item.skuImage || good.primaryImage,
+    };
+  });
+
+const normalizeAdminGood = (payload = {}, currentGood = null) => {
+  const spuId = currentGood?.spuId || normalizeString(payload.spuId, `${Date.now()}`);
+  const categoryId = normalizeString(
+    payload.categoryId || payload.categoryIds?.[0],
+    currentGood?.categoryIds?.[0] || 'fruit',
+  );
+  const primaryImage = normalizeString(
+    payload.primaryImage,
+    currentGood?.primaryImage || getDefaultGoodsImage(categoryId),
+  );
+  const images = normalizeImageList(
+    payload.images,
+    currentGood?.images || [primaryImage, detailFarm, detailDelivery],
+  );
+  const desc = normalizeImageList(payload.desc, currentGood?.desc || [detailFarm, detailDelivery]);
+  const specId = normalizeString(
+    payload.specId,
+    currentGood?.specList?.[0]?.specId || `${spuId}-spec-1`,
+  );
+  const rawSkuItems =
+    Array.isArray(payload.skuItems) && payload.skuItems.length
+      ? payload.skuItems
+      : buildExistingAdminSkuItems(currentGood || {});
+  const skuSeed =
+    rawSkuItems.length > 0
+      ? rawSkuItems
+      : [
+          {
+            specValue: '默认规格',
+            salePrice: 0,
+            linePrice: 0,
+            stockQuantity: 0,
+            weight: 1,
+            skuImage: primaryImage,
+          },
+        ];
+
+  const skuItems = skuSeed.map((item, index) => {
+    const salePrice = normalizeInteger(item.salePrice, 0);
+    const linePrice = normalizeInteger(item.linePrice, salePrice);
+    return {
+      skuId: normalizeString(item.skuId, `${spuId}-${String(index + 1).padStart(2, '0')}`),
+      specValueId: normalizeString(item.specValueId, `${specId}-${String(index + 1).padStart(2, '0')}`),
+      specValue: normalizeString(item.specValue, `规格${index + 1}`),
+      salePrice,
+      linePrice: Math.max(linePrice, salePrice),
+      stockQuantity: normalizeInteger(item.stockQuantity, 0),
+      weight: normalizeNumber(item.weight, 1),
+      skuImage: normalizeString(item.skuImage, primaryImage),
+    };
+  });
+
+  const salePrices = skuItems.map((item) => item.salePrice);
+  const linePrices = skuItems.map((item) => item.linePrice);
+  const totalStock = skuItems.reduce((sum, item) => sum + item.stockQuantity, 0);
+  const tagTitle = normalizeString(payload.tagTitle, currentGood?.spuTagList?.[0]?.title || '');
+  const limitText = normalizeString(payload.limitText, currentGood?.limitInfo?.[0]?.text || '');
+  const soldNum = normalizeInteger(payload.soldNum, currentGood?.soldNum || 0);
+  const isPutOnSale = normalizeFlag(payload.isPutOnSale, currentGood?.isPutOnSale ?? 1);
+
+  return {
+    saasId: currentGood?.saasId || '88888888',
+    storeId: currentGood?.storeId || '1000',
+    spuId,
+    title: normalizeString(payload.title, currentGood?.title || '未命名商品'),
+    primaryImage,
+    images: uniqueStrings([primaryImage, ...images]),
+    available: 1,
+    isAvailable: 1,
+    minSalePrice: `${Math.min(...salePrices)}`,
+    minLinePrice: `${Math.min(...linePrices)}`,
+    maxSalePrice: `${Math.max(...salePrices)}`,
+    maxLinePrice: `${Math.max(...linePrices)}`,
+    spuStockQuantity: totalStock,
+    soldNum,
+    isPutOnSale,
+    isSoldOut: isPutOnSale === 0 || totalStock === 0,
+    categoryIds: [categoryId],
+    groupIdList: [categoryId],
+    specList: [
+      {
+        specId,
+        title: '规格',
+        specValueList: skuItems.map((item) => ({
+          specValueId: item.specValueId,
+          specId,
+          specValue: item.specValue,
+          image: '',
+        })),
+      },
+    ],
+    skuList: skuItems.map((item) =>
+      buildSku({
+        skuId: item.skuId,
+        skuImage: item.skuImage,
+        specInfo: [
+          {
+            specId,
+            specTitle: '规格',
+            specValueId: item.specValueId,
+            specValue: item.specValue,
+          },
+        ],
+        salePrice: item.salePrice,
+        linePrice: item.linePrice,
+        stockQuantity: item.stockQuantity,
+        weight: item.weight,
+      }),
+    ),
+    spuTagList: tagTitle
+      ? [
+          {
+            id: currentGood?.spuTagList?.[0]?.id || `tag-${spuId}`,
+            title: tagTitle,
+            image: null,
+          },
+        ]
+      : [],
+    limitInfo: limitText ? [{ text: limitText }] : [],
+    desc,
+    etitle: normalizeString(payload.etitle, currentGood?.etitle || ''),
   };
 };
 
@@ -586,6 +765,68 @@ async function handler(req, res) {
       return draft;
     });
     ok(res, response);
+    return;
+  }
+
+  if (pathname === '/api/admin/goods' && req.method === 'GET') {
+    ok(res, { data: (await readState()).goods, code: 'Success', success: true });
+    return;
+  }
+
+  if (adminGoodsMatch && req.method === 'GET') {
+    const state = await readState();
+    const target = state.goods.find((item) => item.spuId === adminGoodsMatch[1]);
+    if (!target) {
+      fail(res, 404, '商品不存在');
+      return;
+    }
+    ok(res, { data: target, code: 'Success', success: true });
+    return;
+  }
+
+  if (pathname === '/api/admin/goods' && req.method === 'POST') {
+    const nextState = await updateState(async (draft) => {
+      const nextGood = normalizeAdminGood(body);
+      draft.goods.unshift(nextGood);
+      return draft;
+    });
+    ok(res, { data: nextState.goods[0], code: 'Success', success: true }, 201);
+    return;
+  }
+
+  if (adminGoodsMatch && req.method === 'PATCH') {
+    const nextState = await updateState(async (draft) => {
+      const target = draft.goods.find((item) => item.spuId === adminGoodsMatch[1]);
+      if (!target) throw new Error('商品不存在');
+      const nextGood = normalizeAdminGood(body, target);
+      const allowedSkuIds = new Set(nextGood.skuList.map((item) => item.skuId));
+      draft.goods = draft.goods.map((item) => (item.spuId === adminGoodsMatch[1] ? nextGood : item));
+      draft.cartItems = draft.cartItems.filter(
+        (item) => item.spuId !== adminGoodsMatch[1] || allowedSkuIds.has(item.skuId),
+      );
+      return draft;
+    }).catch((error) => {
+      fail(res, 404, error.message);
+      return null;
+    });
+    if (!nextState) return;
+    ok(res, { data: nextState.goods.find((item) => item.spuId === adminGoodsMatch[1]), code: 'Success', success: true });
+    return;
+  }
+
+  if (adminGoodsMatch && req.method === 'DELETE') {
+    const nextState = await updateState(async (draft) => {
+      const hasTarget = draft.goods.some((item) => item.spuId === adminGoodsMatch[1]);
+      if (!hasTarget) throw new Error('商品不存在');
+      draft.goods = draft.goods.filter((item) => item.spuId !== adminGoodsMatch[1]);
+      draft.cartItems = draft.cartItems.filter((item) => item.spuId !== adminGoodsMatch[1]);
+      return draft;
+    }).catch((error) => {
+      fail(res, 404, error.message);
+      return null;
+    });
+    if (!nextState) return;
+    ok(res, { success: true, code: 'Success' });
     return;
   }
 
