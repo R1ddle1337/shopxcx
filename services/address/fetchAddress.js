@@ -1,4 +1,5 @@
-import { config } from '../../config/index';
+import { shouldUseMock } from '../../config/index';
+import request from '../../utils/request';
 
 /** 获取收货地址 */
 function mockFetchDeliveryAddress(id) {
@@ -10,12 +11,11 @@ function mockFetchDeliveryAddress(id) {
 
 /** 获取收货地址 */
 export function fetchDeliveryAddress(id = 0) {
-  if (config.useMock) {
+  if (shouldUseMock('address')) {
     return mockFetchDeliveryAddress(id);
   }
-
-  return new Promise((resolve) => {
-    resolve('real api');
+  return request({
+    url: `/addresses/${id}`,
   });
 }
 
@@ -38,11 +38,29 @@ function mockFetchDeliveryAddressList(len = 0) {
 
 /** 获取收货地址列表 */
 export function fetchDeliveryAddressList(len = 10) {
-  if (config.useMock) {
+  if (shouldUseMock('address')) {
     return mockFetchDeliveryAddressList(len);
   }
+  return request({
+    url: '/addresses',
+    data: {
+      len,
+    },
+  });
+}
 
-  return new Promise((resolve) => {
-    resolve('real api');
+export function saveDeliveryAddress(address) {
+  const hasId = !!(address.addressId || address.id);
+  return request({
+    url: hasId ? `/addresses/${address.addressId || address.id}` : '/addresses',
+    method: hasId ? 'PUT' : 'POST',
+    data: address,
+  });
+}
+
+export function removeDeliveryAddress(addressId) {
+  return request({
+    url: `/addresses/${addressId}`,
+    method: 'DELETE',
   });
 }

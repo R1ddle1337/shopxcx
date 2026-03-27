@@ -1,5 +1,5 @@
 import Toast from 'tdesign-miniprogram/toast/index';
-import { fetchDeliveryAddress } from '../../../../services/address/fetchAddress';
+import { fetchDeliveryAddress, saveDeliveryAddress } from '../../../../services/address/fetchAddress';
 import { areaData } from '../../../../config/index';
 import { resolveAddress, rejectAddress } from '../../../../services/address/list';
 
@@ -294,7 +294,7 @@ Page({
       });
     });
   },
-  formSubmit() {
+  async formSubmit() {
     const { submitActive } = this.data;
     if (!submitActive) {
       Toast({
@@ -308,33 +308,38 @@ Page({
     }
     const { locationState } = this.data;
 
-    this.hasSava = true;
+    try {
+      const savedAddress = await saveDeliveryAddress({
+        addressId: locationState.addressId,
+        phone: locationState.phone,
+        name: locationState.name,
+        countryName: locationState.countryName,
+        countryCode: locationState.countryCode,
+        provinceName: locationState.provinceName,
+        provinceCode: locationState.provinceCode,
+        cityName: locationState.cityName,
+        cityCode: locationState.cityCode,
+        districtName: locationState.districtName,
+        districtCode: locationState.districtCode,
+        detailAddress: locationState.detailAddress,
+        isDefault: locationState.isDefault === 1 || locationState.isDefault === true ? 1 : 0,
+        addressTag: locationState.addressTag,
+        latitude: locationState.latitude,
+        longitude: locationState.longitude,
+      });
 
-    resolveAddress({
-      saasId: '88888888',
-      uid: `88888888205500`,
-      authToken: null,
-      id: locationState.addressId,
-      addressId: locationState.addressId,
-      phone: locationState.phone,
-      name: locationState.name,
-      countryName: locationState.countryName,
-      countryCode: locationState.countryCode,
-      provinceName: locationState.provinceName,
-      provinceCode: locationState.provinceCode,
-      cityName: locationState.cityName,
-      cityCode: locationState.cityCode,
-      districtName: locationState.districtName,
-      districtCode: locationState.districtCode,
-      detailAddress: locationState.detailAddress,
-      isDefault: locationState.isDefault === 1 ? 1 : 0,
-      addressTag: locationState.addressTag,
-      latitude: locationState.latitude,
-      longitude: locationState.longitude,
-      storeId: null,
-    });
-
-    wx.navigateBack({ delta: 1 });
+      this.hasSava = true;
+      resolveAddress(savedAddress);
+      wx.navigateBack({ delta: 1 });
+    } catch (error) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '地址保存失败，请稍后重试',
+        icon: '',
+        duration: 1000,
+      });
+    }
   },
 
   getWeixinAddress(e) {

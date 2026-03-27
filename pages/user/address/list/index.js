@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { fetchDeliveryAddressList } from '../../../../services/address/fetchAddress';
+import { fetchDeliveryAddressList, removeDeliveryAddress } from '../../../../services/address/fetchAddress';
 import Toast from 'tdesign-miniprogram/toast/index';
 import { resolveAddress, rejectAddress } from '../../../../services/address/list';
 import { getAddressPromise } from '../../../../services/address/edit';
@@ -102,11 +102,15 @@ Page({
     }
   },
   deleteAddressHandle(e) {
-    const { id } = e.currentTarget.dataset;
-    this.setData({
-      addressList: this.data.addressList.filter((address) => address.id !== id),
-      deleteID: '',
-      showDeleteConfirm: false,
+    const targetId = e.currentTarget.dataset.id || e.detail?.id;
+    if (!targetId) return;
+
+    removeDeliveryAddress(targetId).then(() => {
+      this.setData({
+        deleteID: '',
+        showDeleteConfirm: false,
+      });
+      this.getAddressList();
     });
   },
   editAddressHandle({ detail }) {
@@ -131,50 +135,8 @@ Page({
 
   waitForNewAddress() {
     getAddressPromise()
-      .then((newAddress) => {
-        let addressList = [...this.data.addressList];
-
-        newAddress.phoneNumber = newAddress.phone;
-        newAddress.address = `${newAddress.provinceName}${newAddress.cityName}${newAddress.districtName}${newAddress.detailAddress}`;
-        newAddress.tag = newAddress.addressTag;
-
-        if (!newAddress.addressId) {
-          newAddress.id = `${addressList.length}`;
-          newAddress.addressId = `${addressList.length}`;
-
-          if (newAddress.isDefault === 1) {
-            addressList = addressList.map((address) => {
-              address.isDefault = 0;
-
-              return address;
-            });
-          } else {
-            newAddress.isDefault = 0;
-          }
-
-          addressList.push(newAddress);
-        } else {
-          addressList = addressList.map((address) => {
-            if (address.addressId === newAddress.addressId) {
-              return newAddress;
-            }
-            return address;
-          });
-        }
-
-        addressList.sort((prevAddress, nextAddress) => {
-          if (prevAddress.isDefault && !nextAddress.isDefault) {
-            return -1;
-          }
-          if (!prevAddress.isDefault && nextAddress.isDefault) {
-            return 1;
-          }
-          return 0;
-        });
-
-        this.setData({
-          addressList: addressList,
-        });
+      .then(() => {
+        this.getAddressList();
       })
       .catch((e) => {
         if (e.message !== 'cancel') {

@@ -1,4 +1,5 @@
-import { config } from '../../config/index';
+import { shouldUseMock } from '../../config/index';
+import request from '../../utils/request';
 
 /** 获取个人中心信息 */
 function mockFetchUserCenter() {
@@ -9,10 +10,10 @@ function mockFetchUserCenter() {
 
 /** 获取个人中心信息 */
 export function fetchUserCenter() {
-  if (config.useMock) {
+  if (shouldUseMock('usercenter')) {
     return mockFetchUserCenter();
   }
-  return new Promise((resolve) => {
-    resolve('real api');
+  return request({
+    url: '/user/center',
   });
 }

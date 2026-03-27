@@ -1,4 +1,5 @@
-import { config } from '../../config/index';
+import { shouldUseMock } from '../../config/index';
+import request from '../../utils/request';
 
 /** 获取商品列表 */
 function mockFetchGoodsList(pageIndex = 1, pageSize = 20) {
@@ -20,10 +21,14 @@ function mockFetchGoodsList(pageIndex = 1, pageSize = 20) {
 
 /** 获取商品列表 */
 export function fetchGoodsList(pageIndex = 1, pageSize = 20) {
-  if (config.useMock) {
+  if (shouldUseMock('goods')) {
     return mockFetchGoodsList(pageIndex, pageSize);
   }
-  return new Promise((resolve) => {
-    resolve('real api');
+  return request({
+    url: '/goods/home',
+    data: {
+      pageIndex,
+      pageSize,
+    },
   });
 }

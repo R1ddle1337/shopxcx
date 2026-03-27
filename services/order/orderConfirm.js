@@ -1,5 +1,6 @@
-import { config } from '../../config/index';
+import { shouldUseMock } from '../../config/index';
 import { mockIp, mockReqId } from '../../utils/mock';
+import request from '../../utils/request';
 
 /** 获取结算mock数据 */
 function mockFetchSettleDetail(params) {
@@ -36,23 +37,25 @@ function mockDispatchCommitPay() {
 
 /** 获取结算数据 */
 export function fetchSettleDetail(params) {
-  if (config.useMock) {
+  if (shouldUseMock('order')) {
     return mockFetchSettleDetail(params);
   }
-
-  return new Promise((resolve) => {
-    resolve('real api');
+  return request({
+    url: '/orders/settle',
+    method: 'POST',
+    data: params,
   });
 }
 
 /* 提交订单 */
 export function dispatchCommitPay(params) {
-  if (config.useMock) {
+  if (shouldUseMock('order')) {
     return mockDispatchCommitPay(params);
   }
-
-  return new Promise((resolve) => {
-    resolve('real api');
+  return request({
+    url: '/orders/submit',
+    method: 'POST',
+    data: params,
   });
 }
 

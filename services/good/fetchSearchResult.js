@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
-import { config } from '../../config/index';
+import { shouldUseMock } from '../../config/index';
+import request from '../../utils/request';
 
 /** 获取搜索历史 */
 function mockSearchResult(params) {
@@ -29,10 +30,11 @@ function mockSearchResult(params) {
 
 /** 获取搜索历史 */
 export function getSearchResult(params) {
-  if (config.useMock) {
+  if (shouldUseMock('goods')) {
     return mockSearchResult(params);
   }
-  return new Promise((resolve) => {
-    resolve('real api');
+  return request({
+    url: '/goods/search',
+    data: params,
   });
 }

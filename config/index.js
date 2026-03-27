@@ -1,7 +1,14 @@
 export const config = {
   /** 是否使用mock代替api返回 */
   useMock: true,
+  apiBaseUrl: 'http://127.0.0.1:3007/api',
+  userIdStorageKey: 'fresh-garden:user-id',
+  realApiScopes: ['goods', 'cart', 'usercenter', 'order', 'address'],
 };
+
+export const useRealApi = (scope) => config.realApiScopes.includes(scope);
+
+export const shouldUseMock = (scope) => config.useMock && !useRealApi(scope);
 
 export const cdnBase =
   'https://we-retail-static-1300977798.cos.ap-guangzhou.myqcloud.com/retail-mp';

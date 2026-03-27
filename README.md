@@ -6,7 +6,7 @@
 
 # 鲜蔬果园小程序
 
-基于 `Tencent/tdesign-miniprogram-starter-retail` 改造成的果蔬店铺小程序示例，当前仓库用于前端页面演示、交互联调和本地 mock 数据验证。
+基于 `Tencent/tdesign-miniprogram-starter-retail` 改造成的果蔬店铺小程序，当前仓库已经补了一套本地真实 API，可用于小程序页面联调、商品管理、菜篮与下单链路验证。
 
 ## 技术栈
 
@@ -14,75 +14,91 @@
 - UI 组件库：`tdesign-miniprogram@1.9.5`
 - 包管理：`npm`
 - 代码规范：`ESLint` + `Prettier` + `Husky` + `lint-staged`
-- 数据模式：前端 `services/*` + `model/*` 本地 mock
+- 数据模式：小程序前端 + 本地 Node API
 
 ## 本地运行
 
 1. `npm install`
-2. 使用微信开发者工具打开项目目录
-3. 在开发者工具中执行“构建 npm”
-4. `project.config.json` 中填入你自己的小程序 `AppID`
+2. 启动本地 API：`npm run api:start`
+3. 使用微信开发者工具打开项目目录
+4. 在开发者工具中执行“构建 npm”
+5. `project.config.json` 中填入你自己的小程序 `AppID`
+6. 开发者工具里关闭“校验合法域名”或把你的正式域名替换到 `config/index.js`
 
 ## 项目结构
 
 - `pages/`：页面层，包含首页、分类、菜篮、订单、售后、个人中心
 - `components/`：通用组件
-- `model/`：本地 mock 数据源
-- `services/`：数据获取与提交入口，当前默认走 mock
+- `model/`：仍保留的次级 mock 数据
+- `services/`：前端服务层，主链路已切到本地 API
+- `backend/src/`：本地真实 API
+- `backend/data/app.json`：运行后生成的本地业务数据文件
 - `assets/produce/`：果蔬主题本地插画资源
-- `config/index.js`：全局配置，`useMock: true` 表示启用本地模拟数据
+- `config/index.js`：全局配置，`realApiScopes` 控制哪些模块走真实 API
 
 ## 如何自定义商品和价格
 
-当前没有后台管理系统，商品和价格直接维护在前端 mock 中：
+当前主链路已经有本地后台，商品和价格优先从本地 API 读取。
 
-- 商品详情与 SKU：`model/good.js`
-- 商品列表：`model/goods.js`
-- 分类：`model/category.js`
-- 搜索词与搜索结果：`model/search.js`
-- 菜篮示例：`model/cart.js`
+可改入口：
 
-修改方式：
+- 本地数据文件：`backend/data/app.json`
+- 商品种子：`backend/src/seed.js`
+- 商品列表接口：`GET /api/admin/goods`
+- 新增商品接口：`POST /api/admin/goods`
+- 修改商品/价格接口：`PATCH /api/admin/goods/:spuId`
 
-- 新增商品：在 `model/good.js` 的 `allGoods` 数组新增一项
-- 改价格：修改商品的 `minSalePrice`、`maxSalePrice`，以及各 SKU 的 `salePrice` / `linePrice`
-- 改库存：修改 SKU 的 `stockQuantity`
+如果只是想快速改一版数据，最简单的方式是：
+
+- 先运行一次 `npm run api:start`
+- 停掉服务后修改 `backend/data/app.json`
+- 重启 API 让小程序重新读取
 
 ## 后台在哪里
 
-当前仓库 **不包含真实后台**。`services/*` 里大多数方法会在 `config.useMock === true` 时读取 `model/*` 的本地数据；关闭 mock 后，现状只会返回占位值 `real api`，还没有真正的服务端实现。
+当前仓库已经包含一个本地真实 API，在 `backend/src/server.js`。
 
-如果要接入正式后台，优先改这些入口：
+当前已切真实 API 的主链路：
 
 - 商品：`services/good/*`
 - 菜篮：`services/cart/cart.js`
 - 用户：`services/usercenter/*`
 - 订单与支付：`services/order/*`
+- 地址：`services/address/*`
+
+仍保留 mock 的次级模块：
+
+- 评论
+- 活动/促销
+- 优惠券
+- 售后细页
 
 ## 用户注册、下单、付款现状
 
 ### 用户注册
 
-当前 **没有注册系统**。用户信息来自 `model/usercenter.js` 的 mock 数据，仅用于页面展示。
+当前采用 **本地访客会话**，`app.js` 会给小程序写入默认用户 `u-1000`。这保证了本地下单、菜篮、地址、订单能真实落数据。
+
+如果你要正式上线，下一步要补：
+
+- 微信登录换 `openid`
+- 手机号绑定
+- 正式注册/登录接口
 
 ### 用户下单
 
-当前链路是可演示的：
+当前链路已经能本地真实落单：
 
 1. 首页/列表进入商品详情
 2. 选择 SKU 后加入菜篮或立即购买
 3. 进入结算页
 4. 提交订单
 
-结算与订单数据来自：
-
-- `services/order/orderConfirm.js`
-- `model/order/orderConfirm.js`
-- `model/order/mockData.js`
+结算与订单数据会写入 `backend/data/app.json`，再次打开订单页仍可看到。
 
 ### 付款
 
-当前 **不是真实微信支付**。`pages/order/order-confirm/pay.js` 中的 `wechatPayOrder()` 会直接走支付成功分支，用来演示支付结果页与订单流转。
+当前 **建单是真实的，本地支付仍是模拟成功**。`pages/order/order-confirm/pay.js` 里还没有接正式 `wx.requestPayment`，所以现阶段适合联调订单流，不适合直接上线收款。
 
 如果要上线真实支付，至少需要补齐：
 
@@ -94,6 +110,6 @@
 
 ## 开发建议
 
-- 做演示版：继续维护 `model/*` 即可
-- 做可运营版本：先补服务端和管理后台，再把 `services/*` 从 mock 切到真实 API
+- 当前阶段适合做本地真实联调和业务开发
+- 如果要正式商用，下一步优先补正式登录、正式支付、HTTPS 域名和商家后台 UI
 - 不要把 `AppID`、密钥、商户号等敏感配置提交到 GitHub

@@ -8,6 +8,7 @@ import {
 
 import { cdnBase } from '../../../config/index';
 import { STORE_NAME } from '../../../model/store';
+import { addCartItem } from '../../../services/cart/cart';
 
 const imgPrefix = `${cdnBase}/`;
 
@@ -212,15 +213,44 @@ Page({
     }
   },
 
-  addCart() {
+  async addCart() {
     const { isAllSelectedSku } = this.data;
-    Toast({
-      context: this,
-      selector: '#t-toast',
-      message: isAllSelectedSku ? '已加入菜篮' : '请选择规格',
-      icon: '',
-      duration: 1000,
-    });
+    if (!isAllSelectedSku) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '请选择规格',
+        icon: '',
+        duration: 1000,
+      });
+      return;
+    }
+
+    const selectedSku = this.data.selectItem || this.data.skuArray[0] || {};
+
+    try {
+      await addCartItem({
+        spuId: this.data.spuId,
+        skuId: selectedSku.skuId || this.data.details.skuList?.[0]?.skuId,
+        quantity: this.data.buyNum,
+      });
+      this.handlePopupHide();
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '已加入菜篮',
+        icon: '',
+        duration: 1000,
+      });
+    } catch (error) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '加入失败，请稍后重试',
+        icon: '',
+        duration: 1000,
+      });
+    }
   },
 
   gotoBuy(type) {

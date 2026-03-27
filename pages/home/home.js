@@ -1,5 +1,6 @@
 import { fetchGoodsList } from '../../services/good/fetchGoods';
 import Toast from 'tdesign-miniprogram/toast/index';
+import { addCartItem } from '../../services/cart/cart';
 
 Page({
   data: {
@@ -88,12 +89,28 @@ Page({
     });
   },
 
-  goodListAddCartHandle() {
-    Toast({
-      context: this,
-      selector: '#t-toast',
-      message: '已加入菜篮',
-    });
+  async goodListAddCartHandle(e) {
+    const { goods } = e.detail || {};
+    if (!goods?.spuId || !goods?.skuId) return;
+
+    try {
+      await addCartItem({
+        spuId: goods.spuId,
+        skuId: goods.skuId,
+        quantity: 1,
+      });
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '已加入菜篮',
+      });
+    } catch (error) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '加入失败，请稍后重试',
+      });
+    }
   },
 
   navToSearchPage() {

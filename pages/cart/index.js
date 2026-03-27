@@ -1,6 +1,12 @@
 import Dialog from 'tdesign-miniprogram/dialog/index';
 import Toast from 'tdesign-miniprogram/toast/index';
-import { fetchCartGroupData } from '../../services/cart/cart';
+import {
+  fetchCartGroupData,
+  updateCartItem,
+  deleteCartItem,
+  updateCartStoreSelected,
+  updateCartAllSelected,
+} from '../../services/cart/cart';
 
 Page({
   data: {
@@ -17,7 +23,7 @@ Page({
   },
 
   refreshData() {
-    this.getCartGroupData().then((res) => {
+    fetchCartGroupData().then((res) => {
       let isEmpty = true;
       const cartGroupData = res.data;
       // 一些组件中需要的字段可能接口并没有返回，或者返回的数据结构与预期不一致，需要在此先对数据做一些处理
@@ -75,7 +81,7 @@ Page({
         for (const goods of activity.goodsPromotionList) {
           if (goods.spuId === spuId && goods.skuId === skuId) {
             currentStore = store;
-            currentActivity = currentActivity;
+            currentActivity = activity;
             currentGoods = goods;
             return {
               currentStore,
@@ -93,70 +99,28 @@ Page({
     };
   },
 
-  // 注：实际场景时应该调用接口获取购物车数据
-  getCartGroupData() {
-    const { cartGroupData } = this.data;
-    if (!cartGroupData) {
-      return fetchCartGroupData();
-    }
-    return Promise.resolve({ data: cartGroupData });
-  },
-
-  // 选择单个商品
-  // 注：实际场景时应该调用接口更改选中状态
   selectGoodsService({ spuId, skuId, isSelected }) {
-    this.findGoods(spuId, skuId).currentGoods.isSelected = isSelected;
-    return Promise.resolve();
-  },
-
-  // 全选门店
-  // 注：实际场景时应该调用接口更改选中状态
-  selectStoreService({ storeId, isSelected }) {
-    const currentStore = this.data.cartGroupData.storeGoods.find((s) => s.storeId === storeId);
-    currentStore.isSelected = isSelected;
-    currentStore.promotionGoodsList.forEach((activity) => {
-      activity.goodsPromotionList.forEach((goods) => {
-        goods.isSelected = isSelected;
-      });
+    return updateCartItem({
+      spuId,
+      skuId,
+      isSelected,
     });
-    return Promise.resolve();
   },
 
-  // 加购数量变更
-  // 注：实际场景时应该调用接口
+  selectStoreService({ storeId, isSelected }) {
+    return updateCartStoreSelected({ storeId, isSelected });
+  },
+
   changeQuantityService({ spuId, skuId, quantity }) {
-    this.findGoods(spuId, skuId).currentGoods.quantity = quantity;
-    return Promise.resolve();
+    return updateCartItem({
+      spuId,
+      skuId,
+      quantity,
+    });
   },
 
-  // 删除加购商品
-  // 注：实际场景时应该调用接口
   deleteGoodsService({ spuId, skuId }) {
-    function deleteGoods(group) {
-      for (const gindex in group) {
-        const goods = group[gindex];
-        if (goods.spuId === spuId && goods.skuId === skuId) {
-          group.splice(gindex, 1);
-          return gindex;
-        }
-      }
-      return -1;
-    }
-    const { storeGoods, invalidGoodItems } = this.data.cartGroupData;
-    for (const store of storeGoods) {
-      for (const activity of store.promotionGoodsList) {
-        if (deleteGoods(activity.goodsPromotionList) > -1) {
-          return Promise.resolve();
-        }
-      }
-      if (deleteGoods(store.shortageGoodsList) > -1) {
-        return Promise.resolve();
-      }
-    }
-    if (deleteGoods(invalidGoodItems) > -1) {
-      return Promise.resolve();
-    }
-    return Promise.reject();
+    return deleteCartItem(skuId);
   },
 
   // 清空失效商品
@@ -236,7 +200,6 @@ Page({
   },
 
   clearInvalidGoods() {
-    // 实际场景时应该调用接口清空失效商品
     this.clearInvalidGoodsService().then(() => this.refreshData());
   },
 
@@ -263,7 +226,7 @@ Page({
       selector: '#t-toast',
       message: isAllSelected ? '已取消全选' : '已全选',
     });
-    // 调用接口改变全选
+    updateCartAllSelected({ isSelected: !isAllSelected }).then(() => this.refreshData());
   },
 
   onToSettle() {

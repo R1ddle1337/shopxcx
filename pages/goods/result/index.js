@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { getSearchResult } from '../../../services/good/fetchSearchResult';
 import Toast from 'tdesign-miniprogram/toast/index';
+import { addCartItem } from '../../../services/cart/cart';
 
 const initFilters = {
   overall: 1,
@@ -159,12 +160,28 @@ Page({
     this.init(false);
   },
 
-  handleAddCart() {
-    Toast({
-      context: this,
-      selector: '#t-toast',
-      message: '已加入菜篮',
-    });
+  async handleAddCart(e) {
+    const { goods } = e.detail || {};
+    if (!goods?.spuId || !goods?.skuId) return;
+
+    try {
+      await addCartItem({
+        spuId: goods.spuId,
+        skuId: goods.skuId,
+        quantity: 1,
+      });
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '已加入菜篮',
+      });
+    } catch (error) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '加入失败，请稍后重试',
+      });
+    }
   },
 
   gotoGoodsDetail(e) {

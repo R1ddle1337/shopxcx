@@ -1,4 +1,5 @@
-import { config } from '../../config/index';
+import { shouldUseMock } from '../../config/index';
+import request from '../../utils/request';
 
 /** 获取商品列表 */
 function mockFetchGoodCategory() {
@@ -9,10 +10,10 @@ function mockFetchGoodCategory() {
 
 /** 获取商品列表 */
 export function getCategoryList() {
-  if (config.useMock) {
+  if (shouldUseMock('goods')) {
     return mockFetchGoodCategory();
   }
-  return new Promise((resolve) => {
-    resolve('real api');
+  return request({
+    url: '/categories',
   });
 }
